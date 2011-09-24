@@ -13,4 +13,13 @@
         permission="zope.Public"
         /><!--TODO: For and permission -->
 
+    <browser:resourceDirectory
+        name="plone.app.mediarepository.stylesheets"
+        directory="stylesheets"
+        />
+
+    <browser:resourceDirectory
+        name="plone.app.mediarepository.javascripts"
+        directory="javascripts" />
+
 </configure>

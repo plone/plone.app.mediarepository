@@ -11,5 +11,9 @@ def addMediaRepository(context):
         return
 
     site = hooks.getSite()
-    createContentInContainer(site, 'media_repository', id='media-repository',
-                             title='Media Repository')
+    try:
+        repo = site['media-repository']
+    except KeyError:
+        createContentInContainer(site, 'media_repository',
+                                 id='media-repository',
+                                 title='Media Repository')

@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html xmlns:tal="http://xml.zope.org/namespaces/tal">
   <head>
-    <!--TODO: Should this stay? -->
-    <link type="text/css" media="screen" rel="stylesheet" href="http://localhost:8080/Plone/public.css" />
+    <!--HACK: Tile pages do not use CSS/JS registries, so we have to put them
+    inline (this entire html document is insterted inline, which is a hack in itself).
+    In the future Deco will use CMSUI overlays, so these can be in the cmsui bundle instead-->
+    <script type="text/javascript" tal:attributes="src string:++resource++plone.app.cmsui/js/libs/fileuploader.js"></script>
+    <script type="text/javascript" tal:attributes="src string:++resource++plone.app.cmsui/js/quickupload.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" tal:attributes="href string:++resource++plone.app.cmsui/css/fileuploader.css" />
+    <link rel="stylesheet" href="++resource++plone.app.mediarepository.stylesheets/picker.css" />
   </head>
   <body>
-    <div class="imageRepositoryAlbum">
-      <div class="photoAlbumEntry" tal:repeat="item context/media-repository/@@folderListing">
+    <ul class="mediaRepository">
+      <li class="mediaRepositoryEntry" tal:repeat="item context/media-repository/@@folderListing">
         <a title="" href="#" tal:attributes="href item/getPath; title item/Title" >
-          <span class="photoAlbumEntryWrapper">
+          <span class="mediaRepositoryEntryWrapper">
             <img tal:define="images python:context['media-repository'].restrictedTraverse(item.getId()+'/@@images')"
                  tal:replace="structure images/image/thumb"/>
           </span>
-          <span class="photoAlbumEntryTitle" tal:content="item/Title"></span>
+          <span class="mediaRepositoryEntryTitle" tal:content="item/Title"></span>
         </a>
-      </div>
+      </li>
+    </ul>
+    <div class="uploaderContainer">
+      <input type="hidden"
+             name="uploadUrl"
+             class="uploadUrl"
+             tal:attributes="value view/getUploadUrl" />
+      <input type="hidden"
+             name="uploadData"
+             class="uploadData"
+             tal:attributes="value view/getDataForUploadUrl" />
     </div>
   </body>
 </html>
-

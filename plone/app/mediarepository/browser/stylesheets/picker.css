@@ -1,0 +1,43 @@
+#content ul.mediaRepository {
+    margin: 0px;
+    overflow: hidden;
+}
+
+.mediaRepository .mediaRepositoryEntry {
+    float: left;
+    list-style: none outside none;
+    overflow: hidden;
+    border: 1px solid #EEE;
+    width: 143px;
+    height: 185px;
+    margin: 0.7em;
+    padding: 0px 6px 0px 9px;
+    text-align: center;
+}
+.mediaRepository .mediaRepositoryEntry.selected {
+    border: 1px solid #387FBE;
+}
+
+.mediaRepository .mediaRepositoryEntryWrapper {
+    display: block;
+    width: 128px;
+    height: 128px;
+}
+
+.mediaRepository .mediaRepositoryEntry img {
+    display: block;
+    margin: 0 auto;
+}
+
+#content .mediaRepository .mediaRepositoryEntry a, 
+#content .mediaRepository .mediaRepositoryEntry a:link {
+    display: block;
+    text-decoration: none;
+    font-size: 90%;
+    width: 130px;
+    margin: 16px auto 0px;
+    border: none;
+}
+.mediaRepository .mediaRepositoryEntryTitle {
+    color: #76797c;
+}

@@ -28,6 +28,7 @@ setup(name='plone.app.mediarepository',
           'setuptools',
           'plone.app.dexterity',
           'plone.app.contentlisting',
+          'plone.app.cmsui',
       ],
       extras_require={
           'test': [
