@@ -1,0 +1,5 @@
+*.py?
+*.sw?
+
+build/
+plone.app.mediarepository.egg-info
