@@ -10,7 +10,7 @@ class MediaRepoSourceBinder(UUIDSourceBinder):
     def __call__(self, context):
         site = getSite()
         catalog = getToolByName(site, 'portal_catalog')
-        
+
         repos = catalog({'object_provides': IMediaRepository.__identifier__})
         paths = [p.getPath() for p in repos]
 
