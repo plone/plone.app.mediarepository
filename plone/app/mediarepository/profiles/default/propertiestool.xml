@@ -2,7 +2,7 @@
 <object name="portal_properties" meta_type="Plone Properties Tool">
   <object name="navtree_properties" meta_type="Plone Property Sheet">
     <property name="metaTypesNotToList" type="lines">
-      <element value="media_repository"/>
+      <element value="plone.mediarepository"/>
     </property>
   </object>
 </object>

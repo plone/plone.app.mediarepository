@@ -16,13 +16,13 @@
   <element value="view"/>
  </property>
  <property name="default_view_fallback">False</property>
- <property name="add_permission">cmf.AddPortalContent</property>
+ <property name="add_permission">plone.AddMediaRepository</property>
  <property name="klass">plone.dexterity.content.Container</property>
  <property name="behaviors">
   <element value="plone.app.content.interfaces.INameFromTitle"/>
   <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
  </property>
- <property name="schema"></property>
+ <property name="schema">plone.app.mediarepository.interfaces.IMediaRepository</property>
  <property name="model_source">
   &lt;model xmlns="http://namespaces.plone.org/supermodel/schema"&gt;
       &lt;schema&gt;

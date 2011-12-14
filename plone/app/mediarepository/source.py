@@ -1,18 +1,19 @@
+from zope.site.hooks import getSite
+from Products.CMFCore.utils import getToolByName
+
 from plone.formwidget.contenttree import UUIDSourceBinder
 
-from zope.app.component.hooks import getSite
-
+from plone.app.mediarepository.interfaces import IMediaRepository
 
 class MediaRepoSourceBinder(UUIDSourceBinder):
-    def __init__(self):
-        # Ideally would set navigation tree query at this point, but don't seem
-        # to be able to get a site. Wait until call
-        super(MediaRepoSourceBinder, self).__init__()
 
     def __call__(self, context):
         site = getSite()
-        repo = site.restrictedTraverse('media-repository')
-        repoPath = '/'.join(repo.getPhysicalPath())
-        self.navigation_tree_query = {'path': {'query': repoPath}}
+        catalog = getToolByName(site, 'portal_catalog')
+        
+        repos = catalog({'object_provides': IMediaRepository.__identifier__})
+        paths = [p.getPath() for p in repos]
+
+        self.navigation_tree_query = {'path': {'query': paths}}
         source = super(MediaRepoSourceBinder, self).__call__(context)
         return source
