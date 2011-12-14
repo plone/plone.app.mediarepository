@@ -23,7 +23,7 @@ class MediaRepositorySourceTest(unittest.TestCase):
         repo.invokeFactory('Image', 'test-image1', title='Test Image 1', image=self.gif)
         repo.invokeFactory('Image', 'test-image2', title='Test Image 2', image=self.gif)
         portal.invokeFactory('Image', 'maverick-image', title='This image isn\'t in the repo', image=self.gif)
-        
+
         # Bind source to site root, should have a UUIDSource
         source = MediaRepoSourceBinder()(portal)
         self.assertTrue(isinstance(source, UUIDSource))
