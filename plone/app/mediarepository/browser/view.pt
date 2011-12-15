@@ -11,9 +11,26 @@
                  b_start python:request.get('b_start', 0);
                  batch python:Batch(media, 40, int(b_start), orphan=1);">
 
+<script type="text/javascript" charset="utf-8">
+    jQuery(function($) {
+        $().ready(function () {
+            $("#media-keyword-filter").change(function() {
+                window.location.href = $(":selected", this).val();
+            });
+
+            $('.photoAlbumEntry img')
+                .prepOverlay({
+                    subtype: 'image',
+                    urlmatch: '/@@images/.+$',
+                    urlreplace: ''
+                    });
+        });
+    });
+</script>
+
     <tal:keywords>
         <select style="float: right; clear: right"
-                onchange="window.location.href=this.options[this.selectedIndex].value"
+                id="media-keyword-filter"
                 tal:condition="keywords">
             <option value="" i18n:translate="label_only_these_keywords">Only show media with keyword&hellip;</option>
             <option value="" i18n:translate="label_no_keywords">[no keywords]</option>
