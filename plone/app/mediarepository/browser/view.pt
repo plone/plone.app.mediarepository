@@ -45,6 +45,7 @@
 
         <div tal:define="request_keywords request/keywords|nothing"
              tal:condition="request_keywords">
+            <label i18n:translate="label_keyword_filter">Filter:</label>
             <tal:block tal:repeat="keyword request_keywords">
                 <tal:keyword tal:replace="keyword" />
                 <a href=""
