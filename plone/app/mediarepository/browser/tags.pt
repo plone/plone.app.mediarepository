@@ -1,0 +1,175 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+      lang="en-US"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="plone">
+
+<body>
+
+<div metal:fill-slot="content-core"
+     tal:define="media view/queryMediaRepository;
+                 keywords python:view.getSearchKeywordsFromResults(media);
+                 Batch python:modules['Products.CMFPlone'].Batch;
+                 b_start python:request.get('b_start', 0);
+                 batch python:Batch(media, 40, int(b_start), orphan=1);
+                 toLocalizedTime nocall:context/@@plone/toLocalizedTime;
+                 normalizeString nocall:context/@@plone/normalizeString;
+                 portal_membership context/@@plone_tools/membership;
+                 getMemberInfo   nocall:portal_membership/getMemberInfo;">
+
+<script type="text/javascript" charset="utf-8">
+    jQuery(function($) {
+        $().ready(function () {
+            $("#media-keyword-filter").change(function() {
+                window.location.href = $(":selected", this).val();
+            });
+
+            $('.imagePreview img')
+                .prepOverlay({
+                    subtype: 'image',
+                    urlmatch: '/@@images/.+$',
+                    urlreplace: ''
+                    });
+        });
+    });
+</script>
+
+  <h2 i18n:translate="title_edit_tags">Edit tags</h2>
+
+    <form name="edit_form"
+          method="post"
+          tal:attributes="action string:${context/absolute_url}/${view/__name__}">
+      <table class="listing" id="listing-table">
+        <thead>
+          <tr>
+            <th colspan="5" class="nosort" align="left">
+
+            <tal:keywords>
+              <select style="float: right; clear: right"
+                      id="media-keyword-filter"
+                      tal:condition="keywords">
+                  <option value="" i18n:translate="label_only_these_keywords">Only show media with keyword&hellip;</option>
+                  <option
+                    value=""
+                    i18n:translate="label_no_keywords"
+                    tal:attributes="value python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
+                    >[no keywords]</option>
+                  <tal:block tal:repeat="keyword keywords">
+                      <option
+                          i18n:translate=""
+                          tal:content="keyword"
+                          tal:attributes="value python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
+                          />
+                  </tal:block>
+              </select>
+
+              <div tal:define="request_keywords request/keywords|nothing"
+                   tal:condition="request_keywords">
+                  <label i18n:translate="label_keyword_filter">Filter:</label>
+                  <tal:block tal:repeat="keyword request_keywords">
+                      <tal:keyword tal:replace="keyword" />
+                      <a href=""
+                         title="Remove this keyword from search"
+                         tal:attributes="href python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
+                          >(-)</a>
+                      <tal:arrow tal:condition="not:repeat/keyword/end">
+                          &rarr;
+                      </tal:arrow>
+                  </tal:block>
+              </div>
+
+              <div class="visualClear"><!-- --></div>
+          </tal:keywords>
+
+            </th>
+          </tr>
+          <tr>
+            <th colspan="5" class="nosort">
+              <span i18n:translate="label_select" tal:omit-tag="">Select:</span>
+              <a i18n:translate="label_all"
+                 id="foldercontents-selectall"
+                 class="update-selection">All</a>
+              <a i18n:translate="label_none"
+                 id="foldercontents-select-none"
+                 class="update-selection">None</a>
+            </th>
+          </tr>
+          <tr>
+            <th class="nosort">&nbsp;</th>
+            <th class="nosort">Thumbnail</th>
+            <th class="nosort">Keywords</th>
+            <th class="nosort">Title</th>
+            <th class="nosort">Author</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tal:items tal:repeat="item batch">
+            <tr tal:define="oddrow repeat/item/odd;"
+                tal:attributes="class python:oddrow and 'even' or 'odd'">
+              <td>
+                <input type="checkbox"
+                       class="noborder"
+                       name="paths:list" id="#"
+                       value="#"
+                       tal:attributes="value   item/getPath;
+                                       id      string:cb_${item/getId};
+                                       checked python:request.get('ids_checked', False) and 'checked' or None;
+                                       alt     string:Select ${item/pretty_title_or_id};
+                                       title   string:Select ${item/pretty_title_or_id}" />
+              </td>
+              <td class="imagePreview" tal:define="obj item/getObject">
+                <img tal:replace="structure obj/@@images/image/tile | nothing" />
+              </td>
+              <td tal:content="python:', '.join(item.Subject)">
+                  Keyword
+              </td>
+              <td>
+                <tal:title tal:content="item/Title"> Item Title </tal:title>
+              </td>
+              <td>
+                <tal:creators tal:repeat="creator item/listCreators">
+                    <tal:name tal:condition="creator"
+                              tal:define="author python:getMemberInfo(creator)">
+                        <div tal:content="python:author and author['fullname'] or creator">
+                            Bob Dobalina
+                        </div>
+                    </tal:name>
+                </tal:creators>
+              </td>
+            </tr>
+          </tal:items>
+        </tbody>
+      </table>
+
+        <!-- <tal:field tal:define="field python:context.getField('subject');
+                               errors options/state/getErrors | python: {};">
+            <tal:widget metal:use-macro="python:context.widget(field.getName(), mode='edit')" />
+        </tal:field> -->
+
+        <div class="formControls">
+
+            <input class="context"
+                   type="submit"
+                   value="Update"
+                   name="form.button.Update"
+                   i18n:attributes="value label_update;"
+                   tal:attributes="name string:imagerepository_addKeywords:method;" />
+
+        </div>
+
+        <input type="hidden" name="form.submitted" value="1" />
+
+    </form>
+
+    <p class="discreet"
+       i18n:translate="text_no_media_found"
+       tal:condition="not:media">
+        No media found.
+    </p>
+
+
+    <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
+
+</div>
+
+</body>
+</html>

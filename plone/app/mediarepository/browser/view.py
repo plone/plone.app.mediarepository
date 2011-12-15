@@ -80,3 +80,8 @@ class View(BrowserView):
             qlist[i] = '%s%s=%s' % (urllib.quote(k), m, urllib.quote(str(v)))
 
         return '&'.join(qlist)
+
+class Tags(View):
+    """Tag batch operations
+    """
+

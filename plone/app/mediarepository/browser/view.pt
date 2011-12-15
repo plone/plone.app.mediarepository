@@ -33,7 +33,11 @@
                 id="media-keyword-filter"
                 tal:condition="keywords">
             <option value="" i18n:translate="label_only_these_keywords">Only show media with keyword&hellip;</option>
-            <option value="" i18n:translate="label_no_keywords">[no keywords]</option>
+            <option
+                    value=""
+                    i18n:translate="label_no_keywords"
+                    tal:attributes="value python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
+                    >[no keywords]</option>
             <tal:block tal:repeat="keyword keywords">
                 <option
                     i18n:translate=""

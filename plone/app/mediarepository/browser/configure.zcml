@@ -13,6 +13,14 @@
         />
 
     <browser:page
+        for="plone.app.mediarepository.interfaces.IMediaRepository"
+        name="manage-tags"
+        class=".view.Tags"
+        template="tags.pt"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
         name="mediarepo-picker"
         class=".picker.Picker"
