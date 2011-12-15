@@ -4,6 +4,14 @@
     xmlns:z3c="http://namespaces.zope.org/z3c"
     i18n_domain="plone.app.mediarepository">
 
+   <browser:page
+        for="plone.app.mediarepository.interfaces.IMediaRepository"
+        name="view"
+        class=".view.View"
+        template="view.pt"
+        permission="zope2.View"
+        />
+
     <browser:page
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
         name="mediarepo-picker"
