@@ -1,7 +1,6 @@
 plone.app.imagerepository - todo
 ================================
 
-[ ] Use portal_catalog batching hints
 [ ] Rename manage tags to bulk operations
 [ ] Make the bulk operations page capable of adding and removing tags, deleting media
 [ ] Add select_all JavaScript to manage tags page (see Products.ImageRepository)

@@ -10,6 +10,9 @@ class View(BrowserView):
     Liberally borrowed from Products.ImageRepository
     """
 
+    b_size = 40
+    b_orphan = 0
+
     def getUniqueKeywordsFromResults(self, results):
         """Find all unique keywords in the catalog query results
         """
@@ -34,16 +37,36 @@ class View(BrowserView):
         keywords.sort()
         return keywords
 
-    def queryMediaRepository(self, query=None):
+    def queryMediaRepository(self, query=None, b_size=None, b_start=None, orphan=0):
         """Perform a search returning media items
         """
         portal_catalog = getToolByName(self.context, 'portal_catalog')
         if query is None:
             query = {}
+
+        # Batching hints
+        if b_size is None:
+            b_size = self.b_size
+
+        if orphan is None:
+            orphan = self.b_orphan
+
+        if b_start is None:
+            b_start = int(self.request.get('b_start', 0))
+
+        query['b_start'] = b_start
+        query['b_size'] = b_size + orphan
+
+        # Type filter
         portal_types = portal_catalog.uniqueValuesFor('portal_type')
         portal_types = [x for x in portal_types if x != self.context.portal_type]
         query['portal_type'] = portal_types
+
+        # Path filter
         query['path'] = '/'.join(self.context.getPhysicalPath())
+
+        # Keyword filter
+
         keywords = self.request.get('keywords', None)
         if keywords is not None:
             if keywords[0] == '':
