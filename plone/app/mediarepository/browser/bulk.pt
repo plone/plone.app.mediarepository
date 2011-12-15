@@ -33,7 +33,7 @@
     });
 </script>
 
-  <h2 i18n:translate="title_edit_tags">Edit tags</h2>
+  <h2 i18n:translate="title_edit_bulk">Bulk operations</h2>
 
     <form name="edit_form"
           method="post"
@@ -51,13 +51,13 @@
                   <option
                     value=""
                     i18n:translate="label_no_keywords"
-                    tal:attributes="value python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
+                    tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
                     >[no keywords]</option>
                   <tal:block tal:repeat="keyword keywords">
                       <option
                           i18n:translate=""
                           tal:content="keyword"
-                          tal:attributes="value python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
+                          tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
                           />
                   </tal:block>
               </select>
@@ -69,7 +69,7 @@
                       <tal:keyword tal:replace="keyword" />
                       <a href=""
                          title="Remove this keyword from search"
-                         tal:attributes="href python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
+                         tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
                           >(-)</a>
                       <tal:arrow tal:condition="not:repeat/keyword/end">
                           &rarr;
@@ -140,6 +140,8 @@
         </tbody>
       </table>
 
+      <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
+
         <!-- <tal:field tal:define="field python:context.getField('subject');
                                errors options/state/getErrors | python: {};">
             <tal:widget metal:use-macro="python:context.widget(field.getName(), mode='edit')" />
@@ -166,8 +168,6 @@
         No media found.
     </p>
 
-
-    <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
 
 </div>
 

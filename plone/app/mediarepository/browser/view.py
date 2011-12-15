@@ -104,7 +104,7 @@ class View(BrowserView):
 
         return '&'.join(qlist)
 
-class Tags(View):
+class Bulk(View):
     """Tag batch operations
     """
 

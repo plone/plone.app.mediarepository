@@ -36,7 +36,7 @@
             <option
                     value=""
                     i18n:translate="label_no_keywords"
-                    tal:attributes="value python: '%s/@@manage-tags?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
+                    tal:attributes="value python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
                     >[no keywords]</option>
             <tal:block tal:repeat="keyword keywords">
                 <option

@@ -14,9 +14,9 @@
 
     <browser:page
         for="plone.app.mediarepository.interfaces.IMediaRepository"
-        name="manage-tags"
-        class=".view.Tags"
-        template="tags.pt"
+        name="bulk-operations"
+        class=".view.Bulk"
+        template="bulk.pt"
         permission="zope2.View"
         />
 
