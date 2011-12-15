@@ -1,0 +1,79 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+      lang="en-US"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="plone">
+<body>
+
+<div metal:fill-slot="content-core"
+     tal:define="media view/queryMediaRepository;
+                 keywords python:view.getSearchKeywordsFromResults(media);
+                 Batch python:modules['Products.CMFPlone'].Batch;
+                 b_start python:request.get('b_start', 0);
+                 batch python:Batch(media, 40, int(b_start), orphan=1);">
+
+    <tal:keywords>
+        <select style="float: right; clear: right"
+                onchange="window.location.href=this.options[this.selectedIndex].value"
+                tal:condition="keywords">
+            <option value="" i18n:translate="label_only_these_keywords">Only show media with keyword&hellip;</option>
+            <option value="" i18n:translate="label_no_keywords">[no keywords]</option>
+            <tal:block tal:repeat="keyword keywords">
+                <option
+                    i18n:translate=""
+                    tal:content="keyword"
+                    tal:attributes="value python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
+                    />
+            </tal:block>
+        </select>
+
+        <div tal:define="request_keywords request/keywords|nothing"
+             tal:condition="request_keywords">
+            <tal:block tal:repeat="keyword request_keywords">
+                <tal:keyword tal:replace="keyword" />
+                <a href=""
+                   title="Remove this keyword from search"
+                   tal:attributes="href python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
+                    >(-)</a>
+                <tal:arrow tal:condition="not:repeat/keyword/end">
+                    &rarr;
+                </tal:arrow>
+            </tal:block>
+        </div>
+
+        <div class="visualClear"><!-- --></div>
+    </tal:keywords>
+
+    <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
+
+    <tal:media metal:define-macro="media"
+                tal:condition="batch"
+                tal:repeat="item batch">
+        <div class="photoAlbumEntry">
+            <a tal:define="id python:int(b_start)+int(repeat['item'].number()-1);
+                           obj item/getObject;"
+               tal:attributes="href string:${item/getURL}/view;
+                               title item/Description">
+                <span class="photoAlbumEntryWrapper">
+                    <img tal:replace="structure obj/@@images/image/thumb | nothing" />
+                </span>
+                <span class="photoAlbumEntryTitle" tal:content="item/pretty_title_or_id">
+                   Title
+                </span>
+            </a>
+        </div>
+    </tal:media>
+
+    <div class="visualClear"><!-- --></div>
+
+    <p class="discreet"
+       i18n:translate="text_no_media_uploaded"
+       tal:condition="not:media">
+        No media uploaded yet.
+    </p>
+
+    <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
+
+</div>
+
+</body>
+</html>
