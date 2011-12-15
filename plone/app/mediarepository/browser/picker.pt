@@ -10,26 +10,32 @@
     <link rel="stylesheet" href="++resource++plone.app.mediarepository.stylesheets/picker.css" />
   </head>
   <body>
-    <ul class="mediaRepository">
-      <li class="mediaRepositoryEntry" tal:repeat="item context/media-repository/@@folderListing">
-        <a title="" href="#" tal:attributes="href item/getPath; title item/Title" >
-          <span class="mediaRepositoryEntryWrapper">
-            <img tal:define="images python:context['media-repository'].restrictedTraverse(item.getId()+'/@@images')"
-                 tal:replace="structure images/image/thumb"/>
-          </span>
-          <span class="mediaRepositoryEntryTitle" tal:content="item/Title"></span>
-        </a>
-      </li>
-    </ul>
-    <div class="uploaderContainer">
-      <input type="hidden"
-             name="uploadUrl"
-             class="uploadUrl"
-             tal:attributes="value view/getUploadUrl" />
-      <input type="hidden"
-             name="uploadData"
-             class="uploadData"
-             tal:attributes="value view/getDataForUploadUrl" />
+    <div tal:condition="not:view/getRepositories">
+      <p>There are no media repositories. You might want to add one first?</p>
+    </div>
+    <div class="mediaRepository" tal:repeat="repo view/getRepositories">
+      <!--TODO: The repeat doesn't make too much sense, but gets things going-->
+      <ul class="mediaRepository">
+        <li class="mediaRepositoryEntry" tal:repeat="item repo/@@folderListing">
+          <a title="" href="#" tal:attributes="href item/getPath; title item/Title" >
+            <span class="mediaRepositoryEntryWrapper">
+              <img tal:define="images python:repo.restrictedTraverse(item.getId()+'/@@images')"
+                   tal:replace="structure images/image/thumb"/>
+            </span>
+            <span class="mediaRepositoryEntryTitle" tal:content="item/Title"></span>
+          </a>
+        </li>
+      </ul>
+      <div class="uploaderContainer">
+        <input type="hidden"
+               name="uploadUrl"
+               class="uploadUrl"
+               tal:attributes="value python:view.getUploadUrl(repo)" />
+        <input type="hidden"
+               name="uploadData"
+               class="uploadData"
+               tal:attributes="value python:view.getDataForUploadUrl(repo)" />
+      </div>
     </div>
   </body>
 </html>
