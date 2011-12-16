@@ -9,7 +9,7 @@
                  keywords python:view.getSearchKeywordsFromResults(media);
                  Batch python:modules['Products.CMFPlone'].Batch;
                  b_start python:request.get('b_start', 0);
-                 batch python:Batch(media, 40, int(b_start), orphan=0);">
+                 batch python:Batch(media, view.b_size, int(b_start), orphan=view.b_orphan);">
 
 <script type="text/javascript" charset="utf-8">
     jQuery(function($) {
@@ -32,7 +32,7 @@
         <select style="float: right; clear: right"
                 id="media-keyword-filter"
                 tal:condition="keywords">
-            <option value="" i18n:translate="label_only_these_keywords">Only show media with keyword&hellip;</option>
+            <option value="" i18n:translate="label_only_these_keywords">Only show items with keyword&hellip;</option>
             <option
                     value=""
                     i18n:translate="label_no_keywords"

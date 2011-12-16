@@ -10,11 +10,11 @@
                  keywords python:view.getSearchKeywordsFromResults(media);
                  Batch python:modules['Products.CMFPlone'].Batch;
                  b_start python:request.get('b_start', 0);
-                 batch python:Batch(media, 40, int(b_start), orphan=0);
+                 batch python:Batch(media, view.b_size, int(b_start), orphan=view.b_orphan);
                  toLocalizedTime nocall:context/@@plone/toLocalizedTime;
                  normalizeString nocall:context/@@plone/normalizeString;
                  portal_membership context/@@plone_tools/membership;
-                 getMemberInfo   nocall:portal_membership/getMemberInfo;">
+                 getMemberInfo nocall:portal_membership/getMemberInfo;">
 
 <script type="text/javascript" charset="utf-8">
     jQuery(function($) {
@@ -43,42 +43,42 @@
           <tr>
             <th colspan="5" class="nosort" align="left">
 
-            <tal:keywords>
-              <select style="float: right; clear: right"
-                      id="media-keyword-filter"
-                      tal:condition="keywords">
-                  <option value="" i18n:translate="label_only_these_keywords">Only show media with keyword&hellip;</option>
-                  <option
-                    value=""
-                    i18n:translate="label_no_keywords"
-                    tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
-                    >[no keywords]</option>
-                  <tal:block tal:repeat="keyword keywords">
-                      <option
-                          i18n:translate=""
-                          tal:content="keyword"
-                          tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
-                          />
-                  </tal:block>
-              </select>
+              <tal:keywords>
+                <select style="float: right; clear: right"
+                        id="media-keyword-filter"
+                        tal:condition="keywords">
+                    <option value="" i18n:translate="label_only_these_keywords">Only show items with keyword&hellip;</option>
+                    <option
+                      value=""
+                      i18n:translate="label_no_keywords"
+                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
+                      >[no keywords]</option>
+                    <tal:block tal:repeat="keyword keywords">
+                        <option
+                            i18n:translate=""
+                            tal:content="keyword"
+                            tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
+                            />
+                    </tal:block>
+                </select>
 
-              <div tal:define="request_keywords request/keywords|nothing"
-                   tal:condition="request_keywords">
-                  <label i18n:translate="label_keyword_filter">Filter:</label>
-                  <tal:block tal:repeat="keyword request_keywords">
-                      <tal:keyword tal:replace="keyword" />
-                      <a href=""
-                         title="Remove this keyword from search"
-                         tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
-                          >(-)</a>
-                      <tal:arrow tal:condition="not:repeat/keyword/end">
-                          &rarr;
-                      </tal:arrow>
-                  </tal:block>
-              </div>
+                <div tal:define="request_keywords request/keywords|nothing"
+                     tal:condition="request_keywords">
+                    <label i18n:translate="label_keyword_filter">Filter:</label>
+                    <tal:block tal:repeat="keyword request_keywords">
+                        <tal:keyword tal:replace="keyword" />
+                        <a href=""
+                           title="Remove this keyword from search"
+                           tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
+                            >(-)</a>
+                        <tal:arrow tal:condition="not:repeat/keyword/end">
+                            &rarr;
+                        </tal:arrow>
+                    </tal:block>
+                </div>
 
-              <div class="visualClear"><!-- --></div>
-          </tal:keywords>
+                <div class="visualClear"><!-- --></div>
+            </tal:keywords>
 
             </th>
           </tr>
@@ -91,6 +91,9 @@
               <a i18n:translate="label_none"
                  id="foldercontents-select-none"
                  class="update-selection">None</a>
+              <span i18n:translate="info_total_media_count" tal:condition="python: view.b_size &lt; len(media)">
+                (<span i18n:name="count" tal:omit-tag="" tal:content="media/actual_result_count" /> items in total)
+              </span>
             </th>
           </tr>
           <tr>

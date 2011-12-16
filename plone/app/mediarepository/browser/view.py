@@ -37,25 +37,26 @@ class View(BrowserView):
         keywords.sort()
         return keywords
 
-    def queryMediaRepository(self, query=None, b_size=None, b_start=None, orphan=0):
+    def queryMediaRepository(self, query=None, batch=False):
         """Perform a search returning media items
+
+        Use batch=True to send batching hints to the catalog. This is more
+        efficient, but it will not work with the 'no keywords' query
+        (query['keywords']==['']), and the results will not be usable as
+        a parameter to getSearchKeywordsFromResults().
         """
         portal_catalog = getToolByName(self.context, 'portal_catalog')
         if query is None:
             query = {}
 
         # Batching hints
-        if b_size is None:
+        if batch:
             b_size = self.b_size
-
-        if orphan is None:
             orphan = self.b_orphan
-
-        if b_start is None:
             b_start = int(self.request.get('b_start', 0))
 
-        query['b_start'] = b_start
-        query['b_size'] = b_size + orphan
+            query['b_start'] = b_start
+            query['b_size'] = b_size + orphan
 
         # Type filter
         portal_types = portal_catalog.uniqueValuesFor('portal_type')
