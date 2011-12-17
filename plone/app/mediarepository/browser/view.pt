@@ -6,7 +6,7 @@
 
 <div metal:fill-slot="content-core"
      tal:define="media view/queryMediaRepository;
-                 keywords python:view.getSearchKeywordsFromResults(media);
+                 tags python:view.getSearchTagsFromResults(media);
                  Batch python:modules['Products.CMFPlone'].Batch;
                  b_start python:request.get('b_start', 0);
                  batch python:Batch(media, view.b_size, int(b_start), orphan=view.b_orphan);">
@@ -14,7 +14,7 @@
 <script type="text/javascript" charset="utf-8">
     jQuery(function($) {
         $().ready(function () {
-            $("#media-keyword-filter").change(function() {
+            $("#media-tag-filter").change(function() {
                 window.location.href = $(":selected", this).val();
             });
 
@@ -28,42 +28,42 @@
     });
 </script>
 
-    <tal:keywords>
+    <tal:tags>
         <select style="float: right; clear: right"
-                id="media-keyword-filter"
-                tal:condition="keywords">
-            <option value="" i18n:translate="label_only_these_keywords">Only show items with keyword&hellip;</option>
+                id="media-tag-filter"
+                tal:condition="tags">
+            <option value="" i18n:translate="label_only_these_tags">Only show items with tag&hellip;</option>
             <option
                     value=""
-                    i18n:translate="label_no_keywords"
-                    tal:attributes="value python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
-                    >[no keywords]</option>
-            <tal:block tal:repeat="keyword keywords">
+                    i18n:translate="label_no_tags"
+                    tal:attributes="value python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'tags':['']}))"
+                    >[no tags]</option>
+            <tal:block tal:repeat="tag tags">
                 <option
                     i18n:translate=""
-                    tal:content="keyword"
-                    tal:attributes="value python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
+                    tal:content="tag"
+                    tal:attributes="value python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'tags':[tag]}))"
                     />
             </tal:block>
         </select>
 
-        <div tal:define="request_keywords request/keywords|nothing"
-             tal:condition="request_keywords">
-            <label i18n:translate="label_keyword_filter">Filter:</label>
-            <tal:block tal:repeat="keyword request_keywords">
-                <tal:keyword tal:replace="keyword" />
+        <div tal:define="request_tags request/tags|nothing"
+             tal:condition="request_tags">
+            <label i18n:translate="label_tag_filter">Filter:</label>
+            <tal:block tal:repeat="tag request_tags">
+                <tal:tag tal:replace="tag" />
                 <a href=""
-                   title="Remove this keyword from search"
-                   tal:attributes="href python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
+                   title="Remove this tag from search"
+                   tal:attributes="href python: '%s?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'tags':[tag]}))"
                     >(-)</a>
-                <tal:arrow tal:condition="not:repeat/keyword/end">
+                <tal:arrow tal:condition="not:repeat/tag/end">
                     &rarr;
                 </tal:arrow>
             </tal:block>
         </div>
 
         <div class="visualClear"><!-- --></div>
-    </tal:keywords>
+    </tal:tags>
 
     <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
 

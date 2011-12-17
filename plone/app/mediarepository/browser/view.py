@@ -10,41 +10,42 @@ class View(BrowserView):
     Liberally borrowed from Products.ImageRepository
     """
 
-    b_size = 40
+    b_size = 3
     b_orphan = 0
 
-    def getUniqueKeywordsFromResults(self, results):
-        """Find all unique keywords in the catalog query results
+    def getUniqueTagsFromResults(self, results):
+        """Find all unique tags in the catalog query results
         """
-        keywords = {}
+        tags = {}
         for item in results:
             subjects = item.Subject
             if subjects is not None:
-                for keyword in subjects:
-                    keywords[keyword] = keywords.get(keyword, 0) + 1
-        return keywords
+                for tag in subjects:
+                    tags[tag] = tags.get(tag, 0) + 1
+        return tags
 
-    def getSearchKeywordsFromResults(self, results):
-        """Build the list of search keywords. Excludes keywords used by
+    def getSearchTagsFromResults(self, results):
+        """Build the list of search tags. Excludes tags used by
         all search results, and sorts the results.
         """
-        keywords = self.getUniqueKeywordsFromResults(results)
+        tags = self.getUniqueTagsFromResults(results)
         results_len = len(results)
-        for key, count in keywords.items():
+        for key, count in tags.items():
             if count == results_len:
-                del keywords[key]
-        keywords = keywords.keys()
-        keywords.sort()
-        return keywords
+                del tags[key]
+        tags = tags.keys()
+        tags.sort()
+        return tags
 
     def queryMediaRepository(self, query=None, batch=False):
         """Perform a search returning media items
 
         Use batch=True to send batching hints to the catalog. This is more
-        efficient, but it will not work with the 'no keywords' query
-        (query['keywords']==['']), and the results will not be usable as
-        a parameter to getSearchKeywordsFromResults().
+        efficient, but it will not work with the 'no tags' query
+        (query['tags']==['']), and the results will not be usable as
+        a parameter to getSearchTagsFromResults().
         """
+
         portal_catalog = getToolByName(self.context, 'portal_catalog')
         if query is None:
             query = {}
@@ -66,15 +67,15 @@ class View(BrowserView):
         # Path filter
         query['path'] = '/'.join(self.context.getPhysicalPath())
 
-        # Keyword filter
+        # Tag filter
 
-        keywords = self.request.get('keywords', None)
-        if keywords is not None:
-            if keywords[0] == '':
+        tags = self.request.get('tags', None)
+        if tags is not None:
+            if tags[0] == '':
                 results = portal_catalog(query)
                 return [x for x in results if x.Subject == ()]
             else:
-                query['Subject'] = {'query':keywords, 'operator':'and'}
+                query['Subject'] = {'query':tags, 'operator':'and'}
         return portal_catalog(query)
 
     def makeMediaRepositoryQuery(self, data=None, add=None, omit=None):

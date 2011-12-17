@@ -7,10 +7,12 @@
 
 <div metal:fill-slot="content-core"
      tal:define="media view/queryMediaRepository;
-                 keywords python:view.getSearchKeywordsFromResults(media);
+                 tags python:view.getSearchTagsFromResults(media);
                  Batch python:modules['Products.CMFPlone'].Batch;
                  b_start python:request.get('b_start', 0);
-                 batch python:Batch(media, view.b_size, int(b_start), orphan=view.b_orphan);
+                 b_size view/b_size;
+                 batch python:Batch(media, b_size, int(b_start), orphan=view.b_orphan);
+                 allCount python:media.actual_result_count;
                  toLocalizedTime nocall:context/@@plone/toLocalizedTime;
                  normalizeString nocall:context/@@plone/normalizeString;
                  portal_membership context/@@plone_tools/membership;
@@ -19,87 +21,175 @@
 <script type="text/javascript" charset="utf-8">
     jQuery(function($) {
         $().ready(function () {
-            $("#media-keyword-filter").change(function() {
+            $("#media-tag-filter").change(function() {
                 window.location.href = $(":selected", this).val();
             });
 
-            $('.imagePreview img')
-                .prepOverlay({
-                    subtype: 'image',
-                    urlmatch: '/@@images/.+$',
-                    urlreplace: ''
-                    });
+            $('.imagePreview img').prepOverlay({
+                subtype: 'image',
+                urlmatch: '/@@images/.+$',
+                urlreplace: ''
+            });
+
+            function enableSelectRest() {
+                var selectRest = $("#mediarepo-select-rest");
+                if(selectRest.length > 0) {
+                  selectRest.show();
+                  selectRest.val("0");
+                  $("#mediarepo-selected-rest-count").hide();
+                }
+            }
+
+            function disableSelectRest() {
+                var selectRest = $("#mediarepo-select-rest");
+                if(selectRest.length > 0) {
+                  selectRest.hide();
+                  selectRest.val("0");
+                  $("#mediarepo-selected-rest-count").hide();
+                }
+            }
+
+            $("#mediarepo-select-all").click(function () {
+                $(".itemcheckbox").attr('checked', true);
+
+                $("#mediarepo-select-none").show();
+                $(this).hide();
+                enableSelectRest();
+
+                return false;
+            });
+
+            $("#mediarepo-select-none").click(function () {
+                $(".itemcheckbox").attr('checked', false);
+
+                $("#mediarepo-select-all").show();
+                $(this).hide();
+                disableSelectRest();
+
+                return false;
+            });
+
+            $("#mediarepo-select-rest").click(function () {
+
+                $("#select-rest-marker").val("1");
+
+                $("#mediarepo-selected-rest-count").show();
+                $("#mediarepo-select-all").hide();
+                $("#mediarepo-select-none").show();
+                $(this).hide();
+
+                return false;
+            });
+
+            var numCheckboxes = $(".itemcheckbox").length;
+            $(".itemcheckbox").change(function() {
+
+                var numChecked = $(".itemcheckbox:checked").length;
+
+                // Control the 'All' button
+                if(numChecked < numCheckboxes) { // Unchecked at least one
+                   $("#mediarepo-select-all").show();
+                   disableSelectRest();
+
+                } else if(numChecked == numCheckboxes) { // Checked everything
+                    $("#mediarepo-select-all").hide();
+                    enableSelectRest();
+                }
+
+                // Control the 'None' button
+                if(numChecked > 0) { // Checked at least one
+                    $("#mediarepo-select-none").show();
+                } else if(numChecked == 0) { // Checked none
+                    $("#mediarepo-select-none").hide();
+                }
+
+            });
+
+
         });
     });
 </script>
 
   <h2 i18n:translate="title_edit_bulk">Bulk operations</h2>
 
+  <p class="discreet" i18n:translate="description_media_bulk_operations">
+    Use the table below to modify tags or delete media items in bulk. You
+    can use the tags filter to restrict the items to work on.
+  </p>
+
     <form name="edit_form"
           method="post"
           tal:attributes="action string:${context/absolute_url}/${view/__name__}">
-      <table class="listing" id="listing-table">
+      <table class="listing">
         <thead>
           <tr>
             <th colspan="5" class="nosort" align="left">
 
-              <tal:keywords>
+              <tal:tags>
                 <select style="float: right; clear: right"
-                        id="media-keyword-filter"
-                        tal:condition="keywords">
-                    <option value="" i18n:translate="label_only_these_keywords">Only show items with keyword&hellip;</option>
+                        id="media-tag-filter"
+                        tal:condition="tags">
+                    <option value="" i18n:translate="label_only_these_tags">Only show items with tag&hellip;</option>
                     <option
                       value=""
-                      i18n:translate="label_no_keywords"
-                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':['']}))"
-                      >[no keywords]</option>
-                    <tal:block tal:repeat="keyword keywords">
+                      i18n:translate="label_no_tags"
+                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'tags':['']}))"
+                      >[no tags]</option>
+                    <tal:block tal:repeat="tag tags">
                         <option
                             i18n:translate=""
-                            tal:content="keyword"
-                            tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'keywords':[keyword]}))"
+                            tal:content="tag"
+                            tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'tags':[tag]}))"
                             />
                     </tal:block>
                 </select>
 
-                <div tal:define="request_keywords request/keywords|nothing"
-                     tal:condition="request_keywords">
-                    <label i18n:translate="label_keyword_filter">Filter:</label>
-                    <tal:block tal:repeat="keyword request_keywords">
-                        <tal:keyword tal:replace="keyword" />
+                <div tal:define="request_tags request/tags|nothing"
+                     tal:condition="request_tags">
+                    <label i18n:translate="label_tag_filter">Filter:</label>
+                    <tal:block tal:repeat="tag request_tags">
+                        <tal:tag tal:replace="tag" />
                         <a href=""
-                           title="Remove this keyword from search"
-                           tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'keywords':[keyword]}))"
+                           title="Remove this tag from search"
+                           tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'tags':[tag]}))"
                             >(-)</a>
-                        <tal:arrow tal:condition="not:repeat/keyword/end">
+                        <tal:arrow tal:condition="not:repeat/tag/end">
                             &rarr;
                         </tal:arrow>
                     </tal:block>
                 </div>
 
-                <div class="visualClear"><!-- --></div>
-            </tal:keywords>
-
+              </tal:tags>
             </th>
           </tr>
           <tr>
-            <th colspan="5" class="nosort">
+            <th colspan="5" class="nosort" align="left">
               <span i18n:translate="label_select" tal:omit-tag="">Select:</span>
               <a i18n:translate="label_all"
-                 id="foldercontents-selectall"
+                 id="mediarepo-select-all"
+                 href="#"
                  class="update-selection">All</a>
               <a i18n:translate="label_none"
-                 id="foldercontents-select-none"
+                 href="#"
+                 style="display:none"
+                 id="mediarepo-select-none"
                  class="update-selection">None</a>
-              <span i18n:translate="info_total_media_count" tal:condition="python: view.b_size &lt; len(media)">
-                (<span i18n:name="count" tal:omit-tag="" tal:content="media/actual_result_count" /> items in total)
+              <a i18n:translate="label_select_rest"
+                 style="display:none"
+                 href="#"
+                 id="mediarepo-select-rest"
+                 tal:condition="python: view.b_size &lt; len(media)">
+                 Select all <span i18n:name="count" tal:omit-tag="" tal:content="allCount" /> matching items
+              </a>
+              <span id="mediarepo-selected-rest-count" i18n:translate="label_selected_rest_count" style="display: none">
+                All <span i18n:name="count" tal:omit-tag="" tal:content="allCount" /> matching items selected
               </span>
             </th>
           </tr>
           <tr>
             <th class="nosort">&nbsp;</th>
             <th class="nosort">Thumbnail</th>
-            <th class="nosort">Keywords</th>
+            <th class="nosort">Tags</th>
             <th class="nosort">Title</th>
             <th class="nosort">Author</th>
           </tr>
@@ -110,7 +200,7 @@
                 tal:attributes="class python:oddrow and 'even' or 'odd'">
               <td>
                 <input type="checkbox"
-                       class="noborder"
+                       class="itemcheckbox noborder"
                        name="paths:list" id="#"
                        value="#"
                        tal:attributes="value   item/getPath;
@@ -123,7 +213,7 @@
                 <img tal:replace="structure obj/@@images/image/tile | nothing" />
               </td>
               <td tal:content="python:', '.join(item.Subject)">
-                  Keyword
+                  Tag
               </td>
               <td>
                 <tal:title tal:content="item/Title"> Item Title </tal:title>
@@ -145,32 +235,24 @@
 
       <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
 
-        <!-- <tal:field tal:define="field python:context.getField('subject');
-                               errors options/state/getErrors | python: {};">
-            <tal:widget metal:use-macro="python:context.widget(field.getName(), mode='edit')" />
-        </tal:field> -->
+      <input type="hidden" id="select-rest-marker" name="selectRest:boolean" value="0" />
+      <input type="hidden" name="shownPaths:lines" value="#"
+             tal:attributes="value python:'\n'.join([item.getPath() for item in batch]);" />
 
-        <div class="formControls">
+      <div class="formControls">
 
-            <input class="context"
-                   type="submit"
-                   value="Update"
-                   name="form.button.Update"
-                   i18n:attributes="value label_update;"
-                   tal:attributes="name string:imagerepository_addKeywords:method;" />
+          <input class="context"
+                 type="submit"
+                 value="Update"
+                 name="form.button.Update"
+                 i18n:attributes="value label_update;"
+                 tal:attributes="name string:imagerepository_addTags:method;" />
 
-        </div>
+      </div>
 
-        <input type="hidden" name="form.submitted" value="1" />
+      <input type="hidden" name="form.submitted" value="1" />
 
     </form>
-
-    <p class="discreet"
-       i18n:translate="text_no_media_found"
-       tal:condition="not:media">
-        No media found.
-    </p>
-
 
 </div>
 
