@@ -35,7 +35,7 @@
                 var selectRest = $("#mediarepo-select-rest");
                 if(selectRest.length > 0) {
                   selectRest.show();
-                  selectRest.val("0");
+                  $("#select-rest-marker").val("0");
                   $("#mediarepo-selected-rest-count").hide();
                 }
             }
@@ -44,7 +44,7 @@
                 var selectRest = $("#mediarepo-select-rest");
                 if(selectRest.length > 0) {
                   selectRest.hide();
-                  selectRest.val("0");
+                  $("#select-rest-marker").val("0");
                   $("#mediarepo-selected-rest-count").hide();
                 }
             }
