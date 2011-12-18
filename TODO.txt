@@ -1,8 +1,6 @@
 plone.app.imagerepository - todo
 ================================
 
-[ ] Make the bulk operations page capable of adding and removing tags, deleting media
-[ ] Add select_all JavaScript to manage tags page (see Products.ImageRepository)
 [ ] Add bulk upload (from CMSUI)
 [ ] Better images / preview for non-image media
-
+[ ] Tests for view.py logic

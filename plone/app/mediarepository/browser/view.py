@@ -1,8 +1,19 @@
 import urllib
 from zope.publisher.browser import BrowserView
 
-from Products.CMFCore.utils import getToolByName
+from AccessControl import getSecurityManager
+from AccessControl import Unauthorized
 from ZTUtils.Zope import complex_marshal
+from Products.CMFCore.utils import getToolByName
+from Products.statusmessages.interfaces import IStatusMessage
+
+from plone.app.mediarepository import MessageFactory as _
+
+class FakeResultSet(list):
+
+    @property
+    def actual_result_count(self):
+        return len(self)
 
 class View(BrowserView):
     """Default view for the media repository
@@ -73,7 +84,7 @@ class View(BrowserView):
         if tags is not None:
             if tags[0] == '':
                 results = portal_catalog(query)
-                return [x for x in results if x.Subject == ()]
+                return FakeResultSet([x for x in results if x.Subject == ()])
             else:
                 query['Subject'] = {'query':tags, 'operator':'and'}
         return portal_catalog(query)
@@ -110,3 +121,66 @@ class Bulk(View):
     """Tag batch operations
     """
 
+    def canDelete(self):
+        sm = getSecurityManager()
+        return bool(sm.checkPermission('Delete objects', self.context))
+
+    def canEdit(self, item):
+        sm = getSecurityManager()
+        return bool(sm.checkPermission('Modify portal content', self.context))
+
+    def allTags(self):
+        portal_catalog = getToolByName(self.context, 'portal_catalog')
+        return sorted(portal_catalog.uniqueValuesFor('Subject'))
+
+    def iterItems(self):
+        portal = getToolByName(self.context, 'portal_url').getPortalObject()
+
+        if self.request.form.get('selectRest', False):
+            for item in self.queryMediaRepository():
+                yield item.getObject()
+        else:
+            paths = self.request.form.get('paths', [])
+            for path in paths:
+                try:
+                    yield portal.restrictedTraverse(path)
+                except Unauthorized:
+                    # Should not happen, but no need to blow up if we get here
+                    pass
+
+    def __call__(self):
+
+        form = self.request.form
+
+        if 'form.button.Delete' in form:
+            count = 0
+            if not self.canDelete():
+                raise Unauthorized()
+            for item in self.iterItems():
+                del item.getParentNode()[item.getId()]
+                count += 1
+
+            IStatusMessage(self.request).add(_(u"${count} item(s) deleted", mapping={'count': count}))
+
+        elif 'form.button.Update' in form:
+
+            addTags = set(form.get('addTags', []) + form.get('newTags', []))
+            removeTags = set(form.get('removeTags', []))
+
+            count = 0
+            for item in self.iterItems():
+                if self.canEdit(item):
+                    try:
+                        tags = set(item.Subject())
+                        newTags = tags.union(addTags).difference(removeTags)
+                        item.setSubject(list(newTags))
+                        item.reindexObject()
+                    except AttributeError:
+                        continue
+
+                    count += 1
+
+            IStatusMessage(self.request).add(_(u"${count} item(s) updated", mapping={'count': count}))
+
+
+        return self.index()

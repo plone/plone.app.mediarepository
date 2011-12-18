@@ -7,12 +7,17 @@
 
 <div metal:fill-slot="content-core"
      tal:define="media view/queryMediaRepository;
+                 allCount python:media.actual_result_count;
                  tags python:view.getSearchTagsFromResults(media);
+                 requestTags python: request.get('tags', []);
+                 allTags view/allTags;
+                 tagdata python:{'tags': request.form.get('tags', [])};
+                 batchformkeys python:['tags', 'b_active'];
+                 dummy python:request.form.update({'b_active': 1});
                  Batch python:modules['Products.CMFPlone'].Batch;
                  b_start python:request.get('b_start', 0);
                  b_size view/b_size;
                  batch python:Batch(media, b_size, int(b_start), orphan=view.b_orphan);
-                 allCount python:media.actual_result_count;
                  toLocalizedTime nocall:context/@@plone/toLocalizedTime;
                  normalizeString nocall:context/@@plone/normalizeString;
                  portal_membership context/@@plone_tools/membership;
@@ -35,7 +40,7 @@
                 var selectRest = $("#mediarepo-select-rest");
                 if(selectRest.length > 0) {
                   selectRest.show();
-                  $("#select-rest-marker").val("0");
+                  $("#select-rest-marker").val("");
                   $("#mediarepo-selected-rest-count").hide();
                 }
             }
@@ -44,7 +49,7 @@
                 var selectRest = $("#mediarepo-select-rest");
                 if(selectRest.length > 0) {
                   selectRest.hide();
-                  $("#select-rest-marker").val("0");
+                  $("#select-rest-marker").val("");
                   $("#mediarepo-selected-rest-count").hide();
                 }
             }
@@ -117,9 +122,7 @@
     can use the tags filter to restrict the items to work on.
   </p>
 
-    <form name="edit_form"
-          method="post"
-          tal:attributes="action string:${context/absolute_url}/${view/__name__}">
+    <form method="post" tal:attributes="action string:${request/getURL}?${request/QUERY_STRING}">
       <table class="listing">
         <thead>
           <tr>
@@ -133,13 +136,13 @@
                     <option
                       value=""
                       i18n:translate="label_no_tags"
-                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'tags':['']}))"
+                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, add={'tags':['']}))"
                       >[no tags]</option>
                     <tal:block tal:repeat="tag tags">
                         <option
                             i18n:translate=""
                             tal:content="tag"
-                            tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, add={'tags':[tag]}))"
+                            tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, add={'tags':[tag]}))"
                             />
                     </tal:block>
                 </select>
@@ -151,7 +154,7 @@
                         <tal:tag tal:replace="tag" />
                         <a href=""
                            title="Remove this tag from search"
-                           tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=request.form, omit={'tags':[tag]}))"
+                           tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, omit={'tags':[tag]}))"
                             >(-)</a>
                         <tal:arrow tal:condition="not:repeat/tag/end">
                             &rarr;
@@ -233,11 +236,54 @@
         </tbody>
       </table>
 
-      <div tal:condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
+      <tal:block condition="media" metal:use-macro="context/batch_macros/macros/navigation" />
 
-      <input type="hidden" id="select-rest-marker" name="selectRest:boolean" value="0" />
-      <input type="hidden" name="shownPaths:lines" value="#"
-             tal:attributes="value python:'\n'.join([item.getPath() for item in batch]);" />
+      <input type="hidden" id="select-rest-marker" name="selectRest:boolean" value="" />
+
+      <div id="tag-controls">
+
+        <div class="field">
+          <label for="" i18n:translate="label_remove_tags">Remove tags</label>
+          <div class="formHelp" i18n:translate="help_remove_tags">
+            The tags below are used in at least one of the matched media items.
+            Select one or more items below and then select one or more tags below and
+            click <strong>Update</strong> to remove these tags from the selected items.
+          </div>
+          <select name="removeTags:list" multiple="multiple" size="5">
+            <tal:block repeat="tag allTags">
+              <option
+                tal:condition="tag"
+                tal:attributes="value tag"
+                tal:content="tag"
+                />
+            </tal:block>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="" i18n:translate="label_add_tags">Add tags</label>
+          <div class="formHelp" i18n:translate="help_add_tags">
+            To add new tags to the selected items, you can either choose from
+            a list of tags currently in use, or add new tags (one per line), then
+            click <strong>Update</strong>.
+          </div>
+
+          <select name="addTags:list" multiple="multiple" style="float: left; margin: 0 1em 0 0; height: 6em;">
+            <tal:block repeat="tag allTags">
+              <option
+                tal:condition="python:tag not in requestTags"
+                tal:attributes="value tag"
+                tal:content="tag"
+                />
+            </tal:block>
+          </select>
+
+          <textarea style="width: 40%; height: 5em; margin: 0;" name="newTags:lines" rows="5" cols="30"></textarea>
+
+
+        </div>
+
+      </div>
 
       <div class="formControls">
 
@@ -246,11 +292,17 @@
                  value="Update"
                  name="form.button.Update"
                  i18n:attributes="value label_update;"
-                 tal:attributes="name string:imagerepository_addTags:method;" />
+                 />
+
+          <input class="destructive"
+                 type="submit"
+                 value="Delete"
+                 name="form.button.Delete"
+                 tal:condition="view/canDelete"
+                 i18n:attributes="value label_delete;"
+                 />
 
       </div>
-
-      <input type="hidden" name="form.submitted" value="1" />
 
     </form>
 
