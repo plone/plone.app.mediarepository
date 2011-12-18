@@ -9,10 +9,10 @@
      tal:define="media view/queryMediaRepository;
                  allCount python:media.actual_result_count;
                  tags python:view.getSearchTagsFromResults(media);
-                 requestTags python: request.get('tags', []);
+                 requestTags python:[t for t in request.form.get('tags', []) if t];
                  allTags view/allTags;
                  tagdata python:{'tags': request.form.get('tags', [])};
-                 batchformkeys python:['tags', 'b_active'];
+                 batchformkeys python:['tags', 'SearchableText', 'b_active'];
                  dummy python:request.form.update({'b_active': 1});
                  Batch python:modules['Products.CMFPlone'].Batch;
                  b_start python:request.get('b_start', 0);
@@ -27,7 +27,19 @@
     jQuery(function($) {
         $().ready(function () {
             $("#media-tag-filter").change(function() {
-                window.location.href = $(":selected", this).val();
+                $("#filter-form").submit();
+            });
+
+            $(".media-tag-remove").click(function() {
+                $(this).parent().find("input[type='hidden']").remove();
+                $("#filter-form").submit();
+                return false;
+            });
+
+            $(".media-text-remove").click(function() {
+                $("input[name='SearchableText']").val("");
+                $("#filter-form").submit();
+                return false;
             });
 
             $('.imagePreview img').prepOverlay({
@@ -122,56 +134,79 @@
     can use the tags filter to restrict the items to work on.
   </p>
 
-    <form method="post" tal:attributes="action string:${request/getURL}?${request/QUERY_STRING}">
+    <form id="filter-form" method="post" tal:attributes="action string:${request/getURL}">
+
+      <div style="float: right; clear: right">
+        <input name="SearchableText"
+               type="text"
+               size="18"
+               value=""
+               title="Search media"
+               placeholder="Search media"
+               accesskey="4"
+               i18n:attributes="title title_search_media_metadata;
+                                placeholder title_search_media_metadata"
+               tal:attributes="value request/form/SearchableText|nothing;"
+               class="searchField" />
+
+        <input class="searchButton allowMultiSubmit"
+               type="submit"
+               value="Search"
+               i18n:attributes="value label_search;"/>
+
+        <select name="tags:list" id="media-tag-filter" tal:condition="tags" style="display:block">
+          <option value="" i18n:translate="label_only_these_tags">Only show items with tag&hellip;</option>
+          <option value="__notags__"
+                  i18n:translate="label_no_tags"
+                  tal:condition="not:requestTags"
+                  >[no tags]</option>
+          <option
+                i18n:translate=""
+                tal:repeat="tag tags"
+                tal:content="tag"
+                tal:attributes="value tag"
+                />
+        </select>
+      </div>
+
+      <div tal:condition="requestTags">
+          <label i18n:translate="label_tag_filter">Tags filter:</label>
+          <span tal:repeat="tag requestTags">
+              <input
+                type="hidden"
+                name="tags:list"
+                tal:attributes="value tag; id string:filter-tag-${tag}"
+                />
+              <span
+                tal:condition="python:tag != '__notags__'"
+                tal:content="tag"
+                />
+              <span
+                tal:condition="python:tag == '__notags__'"
+                i18n:translate="label_no_tags"
+                >[no tags]</span>
+              <a href="#"
+                 class="media-tag-remove"
+                 title="Remove this tag from search">(-)</a>
+              <tal:arrow tal:condition="not:repeat/tag/end">
+                  &rarr;
+              </tal:arrow>
+          </span>
+      </div>
+      <div tal:condition="request/SearchableText | nothing">
+          <label i18n:translate="label_search_filter">Text filter:</label>
+          <span>
+              <span tal:content="request/SearchableText" />
+              <a href="#"
+                 class="media-text-remove"
+                 title="Remove this filter from search">(-)</a>
+          </span>
+      </div>
+
+      <div class="visualClear"><!-- --></div>
+
       <table class="listing">
         <thead>
-          <tr>
-            <th colspan="5" class="nosort" align="left">
-
-              <tal:tags>
-                <select style="float: right; clear: right"
-                        id="media-tag-filter"
-                        tal:condition="tags">
-                    <option value="" i18n:translate="label_only_these_tags">Only show items with tag&hellip;</option>
-                    <option
-                      value=""
-                      i18n:translate="label_no_tags"
-                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, add={'tags':['__notags__']}))"
-                      >[no tags]</option>
-                    <tal:block tal:repeat="tag tags">
-                        <option
-                            i18n:translate=""
-                            tal:content="tag"
-                            tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, add={'tags':[tag]}))"
-                            />
-                    </tal:block>
-                </select>
-
-                <div tal:define="request_tags request/tags|nothing"
-                     tal:condition="request_tags">
-                    <label i18n:translate="label_tag_filter">Filter:</label>
-                    <tal:block tal:repeat="tag request_tags">
-                        <span
-                          tal:condition="python:tag != '__notags__'"
-                          tal:content="tag"
-                          />
-                        <span
-                          tal:condition="python:tag == '__notags__'"
-                          i18n:translate="label_no_tags"
-                          >[no tags]</span>
-                        <a href=""
-                           title="Remove this tag from search"
-                           tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, omit={'tags':[tag]}))"
-                            >(-)</a>
-                        <tal:arrow tal:condition="not:repeat/tag/end">
-                            &rarr;
-                        </tal:arrow>
-                    </tal:block>
-                </div>
-
-              </tal:tags>
-            </th>
-          </tr>
           <tr>
             <th colspan="5" class="nosort" align="left">
               <span i18n:translate="label_select" tal:omit-tag="">Select:</span>

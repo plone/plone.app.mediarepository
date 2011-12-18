@@ -8,7 +8,6 @@ from Products.statusmessages.interfaces import IStatusMessage
 from plone.app.mediarepository import MessageFactory as _
 from plone.app.mediarepository.utils import FakeResultSet
 from plone.app.mediarepository.utils import getSearchTagsFromResults
-from plone.app.mediarepository.utils import makeMediaRepositoryQuery
 
 class View(BrowserView):
     """Default view for the media repository
@@ -16,7 +15,7 @@ class View(BrowserView):
     Liberally borrowed from Products.ImageRepository
     """
 
-    b_size = 40
+    b_size = 3
     b_orphan = 0
 
     def getSearchTagsFromResults(self, results):
@@ -53,12 +52,6 @@ class View(BrowserView):
             else:
                 query['Subject'] = {'query':[t for t in tags if t], 'operator':'and'}
         return portal_catalog(query)
-
-
-    def makeMediaRepositoryQuery(self, data=None, add=None, omit=None):
-        """Build a query string suitable for querying the media repository
-        """
-        return makeMediaRepositoryQuery(data=data, add=add, omit=omit)
 
 class Bulk(View):
     """Tag batch operations
