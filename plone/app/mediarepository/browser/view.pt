@@ -25,6 +25,12 @@
                 return false;
             });
 
+            $(".media-text-remove").click(function() {
+                $("input[name='SearchableText']").val("");
+                $("#filter-form").submit();
+                return false;
+            });
+
             $('.photoAlbumEntry img')
                 .prepOverlay({
                     subtype: 'image',
@@ -80,7 +86,7 @@
                 />
               <span
                 tal:condition="python:tag != '__notags__'"
-                tal:replace="tag"
+                tal:content="tag"
                 />
               <span
                 tal:condition="python:tag == '__notags__'"
@@ -92,6 +98,15 @@
               <tal:arrow tal:condition="not:repeat/tag/end">
                   &rarr;
               </tal:arrow>
+          </span>
+      </div>
+      <div tal:condition="request/SearchableText | nothing">
+          <label i18n:translate="label_search_filter">Text filter:</label>
+          <span>
+              <span tal:content="request/SearchableText" />
+              <a href="#"
+                 class="media-text-remove"
+                 title="Remove this filter from search">(-)</a>
           </span>
       </div>
 

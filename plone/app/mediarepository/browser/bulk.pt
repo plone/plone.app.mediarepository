@@ -153,7 +153,7 @@
                     <tal:block tal:repeat="tag request_tags">
                         <span
                           tal:condition="python:tag != '__notags__'"
-                          tal:replace="tag"
+                          tal:content="tag"
                           />
                         <span
                           tal:condition="python:tag == '__notags__'"
