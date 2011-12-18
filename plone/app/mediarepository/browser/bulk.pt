@@ -136,7 +136,7 @@
                     <option
                       value=""
                       i18n:translate="label_no_tags"
-                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, add={'tags':['']}))"
+                      tal:attributes="value python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, add={'tags':['__notags__']}))"
                       >[no tags]</option>
                     <tal:block tal:repeat="tag tags">
                         <option
@@ -151,7 +151,14 @@
                      tal:condition="request_tags">
                     <label i18n:translate="label_tag_filter">Filter:</label>
                     <tal:block tal:repeat="tag request_tags">
-                        <tal:tag tal:replace="tag" />
+                        <span
+                          tal:condition="python:tag != '__notags__'"
+                          tal:replace="tag"
+                          />
+                        <span
+                          tal:condition="python:tag == '__notags__'"
+                          i18n:translate="label_no_tags"
+                          >[no tags]</span>
                         <a href=""
                            title="Remove this tag from search"
                            tal:attributes="href python: '%s/@@bulk-operations?%s' % (context.absolute_url(), view.makeMediaRepositoryQuery(data=tagdata, omit={'tags':[tag]}))"

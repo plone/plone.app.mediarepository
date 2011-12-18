@@ -30,7 +30,7 @@ class View(BrowserView):
         """
 
         query = {}
-        tags = self.request.get('tags', None)
+        tags = self.request.form.get('tags', None)
 
         portal_catalog = getToolByName(self.context, 'portal_catalog')
         portal_types = portal_catalog.uniqueValuesFor('portal_type')
@@ -39,16 +39,19 @@ class View(BrowserView):
         query['portal_type'] = portal_types
         query['path'] = '/'.join(self.context.getPhysicalPath())
 
+        if 'SearchableText' in self.request.form:
+            query['SearchableText'] = self.request.form['SearchableText']
+
         # Note: We do not use batching hints in the catalogue query here,
         # because we need the full result set anyway for
         # ``getSearchTagsFromResult()``.
 
         if tags is not None:
-            if tags[0] == '':
+            if '__notags__' in tags:
                 results = portal_catalog(query)
                 return FakeResultSet([x for x in results if x.Subject == ()])
             else:
-                query['Subject'] = {'query':tags, 'operator':'and'}
+                query['Subject'] = {'query':[t for t in tags if t], 'operator':'and'}
         return portal_catalog(query)
 
 

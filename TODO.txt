@@ -1,6 +1,6 @@
 plone.app.imagerepository - todo
 ================================
 
-[ ] Allow free-text search on view and bulk screen
+[ ] Allow free-text search on bulk screen
 [ ] Add bulk upload (from CMSUI)
 [ ] Better images / preview for non-image media
