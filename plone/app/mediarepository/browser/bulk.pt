@@ -127,13 +127,6 @@
     });
 </script>
 
-  <h2 i18n:translate="title_edit_bulk">Bulk operations</h2>
-
-  <p class="discreet" i18n:translate="description_media_bulk_operations">
-    Use the table below to modify tags or delete media items in bulk. You
-    can use the tags filter to restrict the items to work on.
-  </p>
-
     <form id="filter-form" method="post" tal:attributes="action string:${request/getURL}">
 
       <div style="float: right; clear: right">
@@ -202,6 +195,13 @@
                  title="Remove this filter from search">(-)</a>
           </span>
       </div>
+
+      <h2 i18n:translate="title_edit_bulk">Bulk operations</h2>
+
+      <p class="discreet" i18n:translate="description_media_bulk_operations">
+        Use the table below to modify tags or delete media items in bulk. You
+        can use the tags filter to restrict the items to work on.
+      </p>
 
       <div class="visualClear"><!-- --></div>
 
