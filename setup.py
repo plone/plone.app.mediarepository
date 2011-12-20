@@ -26,8 +26,10 @@ setup(name='plone.app.mediarepository',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'collective.quickupload > 1.3.0',
           'plone.app.dexterity',
           'plone.app.contentlisting',
+          'plone.namedfile [blobs]',
       ],
       extras_require={
           'test': [

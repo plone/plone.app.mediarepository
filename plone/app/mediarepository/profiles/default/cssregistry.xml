@@ -3,4 +3,6 @@
     <stylesheet bundle="mediarepository"
                 applyPrefix="true"
                 id="++resource++plone.app.mediarepository.stylesheets/picker.css" />
+    <stylesheet applyPrefix="true"
+                id="++resource++plone.app.mediarepository.stylesheets/mediarepository.css" />
 </object>

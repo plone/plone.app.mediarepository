@@ -6,8 +6,10 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="plone.app.mediarepository">
 
-  <!-- Include configuration for dependencies listed in setup.py -->
-  <includeDependencies package="." />
+  <include package="plone.app.dexterity" />
+  <include package="plone.app.contentlisting" />
+
+  <include package="collective.quickupload" file="minimal.zcml" />
 
   <include package=".browser" />
 

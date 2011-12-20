@@ -5,23 +5,23 @@
 
 <body>
 
-<div metal:fill-slot="content-core"
-     tal:define="media view/queryMediaRepository;
-                 allCount python:media.actual_result_count;
-                 tags python:view.getSearchTagsFromResults(media);
-                 requestTags python:[t for t in request.form.get('tags', []) if t];
-                 allTags view/allTags;
-                 tagdata python:{'tags': request.form.get('tags', [])};
-                 batchformkeys python:['tags', 'SearchableText', 'b_active'];
-                 dummy python:request.form.update({'b_active': 1});
-                 Batch python:modules['Products.CMFPlone'].Batch;
-                 b_start python:request.get('b_start', 0);
-                 b_size view/b_size;
-                 batch python:Batch(media, b_size, int(b_start), orphan=view.b_orphan);
-                 toLocalizedTime nocall:context/@@plone/toLocalizedTime;
-                 normalizeString nocall:context/@@plone/normalizeString;
-                 portal_membership context/@@plone_tools/membership;
-                 getMemberInfo nocall:portal_membership/getMemberInfo;">
+<metal:block fill-slot="style_slot">
+
+<style type="text/css" media="screen">
+
+.uploaderContainer h4,
+#label-upload {
+  display: none;
+}
+.uploaderContainer .qq-upload-button {
+  float: none;
+}
+
+</style>
+
+</metal:block>
+
+<metal:block fill-slot="javascript_head_slot">
 
 <script type="text/javascript" charset="utf-8">
     jQuery(function($) {
@@ -122,10 +122,78 @@
 
             });
 
+            // Bulk upload
+
+            // workaround this MSIE bug: https://dev.plone.org/plone/ticket/10894
+            if ($.browser.msie) $("#settings").remove();
+            var Browser = {};
+            Browser.onUploadComplete = function() {
+                window.location.reload();
+            }
+            $('.uploaderContainer').each(function(){
+                var uploadUrl =  $('.uploadUrl', this).val();
+                var uploadData =  $('.uploadData', this).val();
+                var uploadDiv = $(this);
+                $.ajax({
+                   type: 'GET',
+                   url: uploadUrl,
+                   data: uploadData,
+                   dataType: 'html',
+                   contentType: 'text/html; charset=utf-8',
+                   success: function(html) {
+                      uploadDiv.html(html);
+                   } });
+            });
 
         });
     });
 </script>
+
+</metal:block>
+
+<div metal:fill-slot="content-core"
+     tal:define="media view/queryMediaRepository;
+                 allCount python:media.actual_result_count;
+                 tags python:view.getSearchTagsFromResults(media);
+                 requestTags python:[t for t in request.form.get('tags', []) if t];
+                 allTags view/allTags;
+                 tagdata python:{'tags': request.form.get('tags', [])};
+                 batchformkeys python:['tags', 'SearchableText', 'b_active'];
+                 dummy python:request.form.update({'b_active': 1});
+                 Batch python:modules['Products.CMFPlone'].Batch;
+                 b_start python:request.get('b_start', 0);
+                 b_size view/b_size;
+                 batch python:Batch(media, b_size, int(b_start), orphan=view.b_orphan);
+                 toLocalizedTime nocall:context/@@plone/toLocalizedTime;
+                 normalizeString nocall:context/@@plone/normalizeString;
+                 portal_membership context/@@plone_tools/membership;
+                 getMemberInfo nocall:portal_membership/getMemberInfo;">
+
+    <p class="discreet" i18n:translate="intro_media_bulk_edit">
+      This page allows you to manage media items in bulk. You can upload
+      new items, edit tags, or delete items by filtering on tags and
+      descriptive text.
+    </p>
+
+    <h2 i18n:translate="title_edit_bulk_upload">Upload</h2>
+
+    <p class="discreet" i18n:translate="help_bulk_upload">
+      Click <strong>browse</strong> to upload one or more media items.
+      In most modern web browsers, you can also drag and drop files from your
+      computer onto the button to upload them.
+    </p>
+
+    <div class="uploaderContainer">
+        <input type="hidden"
+               name="uploadUrl"
+               class="uploadUrl"
+               tal:attributes="value string:${context/absolute_url}/@@quick_upload" />
+        <input type="hidden"
+               name="uploadData"
+               class="uploadData"
+               value=""
+               />
+    </div>
 
     <form id="filter-form" method="post" tal:attributes="action string:${request/getURL}">
 
@@ -196,7 +264,7 @@
           </span>
       </div>
 
-      <h2 i18n:translate="title_edit_bulk">Bulk operations</h2>
+      <h2 i18n:translate="title_edit_bulk">Edit</h2>
 
       <p class="discreet" i18n:translate="description_media_bulk_operations">
         Use the table below to modify tags or delete media items in bulk. You
@@ -347,6 +415,7 @@
       </div>
 
     </form>
+
 
 </div>
 
