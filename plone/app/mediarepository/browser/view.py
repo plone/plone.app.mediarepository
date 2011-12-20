@@ -15,7 +15,7 @@ class View(BrowserView):
     Liberally borrowed from Products.ImageRepository
     """
 
-    b_size = 3
+    b_size = 40
     b_orphan = 0
 
     def getSearchTagsFromResults(self, results):

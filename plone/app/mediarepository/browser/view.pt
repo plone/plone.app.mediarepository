@@ -4,16 +4,7 @@
       i18n:domain="plone">
 <body>
 
-<div metal:fill-slot="content-core"
-     tal:define="media view/queryMediaRepository;
-                 tags python:view.getSearchTagsFromResults(media);
-                 requestTags python:[t for t in request.form.get('tags', []) if t];
-                 Batch python:modules['Products.CMFPlone'].Batch;
-                 tagdata python:{'tags': request.form.get('tags', [])};
-                 batchformkeys python:['tags', 'SearchableText', 'b_active'];
-                 dummy python:request.form.update({'b_active': 1});
-                 b_start python:request.get('b_start', 0);
-                 batch python:Batch(media, view.b_size, int(b_start), orphan=view.b_orphan);">
+<metal:block fill-slot="javascript_head_slot">
 
 <script type="text/javascript" charset="utf-8">
     jQuery(function($) {
@@ -43,6 +34,19 @@
         });
     });
 </script>
+
+</metal:block>
+
+<div metal:fill-slot="content-core"
+     tal:define="media view/queryMediaRepository;
+                 tags python:view.getSearchTagsFromResults(media);
+                 requestTags python:[t for t in request.form.get('tags', []) if t];
+                 Batch python:modules['Products.CMFPlone'].Batch;
+                 tagdata python:{'tags': request.form.get('tags', [])};
+                 batchformkeys python:['tags', 'SearchableText', 'b_active'];
+                 dummy python:request.form.update({'b_active': 1});
+                 b_start python:request.get('b_start', 0);
+                 batch python:Batch(media, view.b_size, int(b_start), orphan=view.b_orphan);">
 
     <form id="filter-form" method="get" tal:attributes="action request/getURL">
 
