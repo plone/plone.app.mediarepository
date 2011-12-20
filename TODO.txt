@@ -1,5 +1,5 @@
 plone.app.imagerepository - todo
 ================================
 
-[ ] Add bulk upload (from CMSUI)
 [ ] Better images / preview for non-image media
+[ ] Make keyword navigation more reusable
