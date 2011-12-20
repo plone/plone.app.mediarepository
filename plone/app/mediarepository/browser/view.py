@@ -18,6 +18,10 @@ class View(BrowserView):
     b_size = 42
     b_orphan = 0
 
+    @property
+    def macros(self):
+        return self.index.macros
+
     def getSearchTagsFromResults(self, results):
         """Build the list of search tags. Excludes tags used by
         all search results, and sorts the results.

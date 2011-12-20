@@ -50,72 +50,78 @@
 
     <form id="filter-form" method="get" tal:attributes="action request/getURL">
 
-      <div style="float: right; clear: right">
-        <input name="SearchableText"
-               type="text"
-               size="18"
-               value=""
-               title="Search media"
-               placeholder="Search media"
-               accesskey="4"
-               i18n:attributes="title title_search_media_metadata;
-                                placeholder title_search_media_metadata"
-               tal:attributes="value request/form/SearchableText|nothing;"
-               class="searchField" />
+      <metal:block define-macro="filter-navigation">
 
-        <input class="searchButton allowMultiSubmit"
-               type="submit"
-               value="Search"
-               i18n:attributes="value label_search;"/>
+        <div style="float: right; clear: right">
+          <input name="SearchableText"
+                 type="text"
+                 size="30"
+                 value=""
+                 title="Search media"
+                 placeholder="Search titles and descriptions"
+                 accesskey="4"
+                 i18n:attributes="title title_search_media_metadata;
+                                  placeholder title_search_media_metadata"
+                 tal:attributes="value request/form/SearchableText|nothing;"
+                 class="searchField" />
 
-        <select name="tags:list" id="media-tag-filter" tal:condition="tags" style="display:block">
-          <option value="" i18n:translate="label_only_these_tags">Only show items with tag&hellip;</option>
-          <option value="__notags__"
+          <input class="searchButton allowMultiSubmit"
+                 type="submit"
+                 value="Search"
+                 i18n:attributes="value label_search;"/>
+
+          <select name="tags:list" id="media-tag-filter" tal:condition="tags" style="display:block; width: 100%">
+            <option value="" i18n:translate="label_only_these_tags">Only show items with tag&hellip;</option>
+            <option value="__notags__"
+                    i18n:translate="label_no_tags"
+                    tal:condition="not:requestTags"
+                    >[no tags]</option>
+            <option
+                  i18n:translate=""
+                  tal:repeat="tag tags"
+                  tal:content="tag"
+                  tal:attributes="value tag"
+                  />
+          </select>
+        </div>
+
+        <div tal:condition="requestTags">
+            <label i18n:translate="label_tag_filter">Tags filter:</label>
+            <span tal:repeat="tag requestTags">
+                <input
+                  type="hidden"
+                  name="tags:list"
+                  tal:attributes="value tag; id string:filter-tag-${tag}"
+                  />
+                <span
+                  tal:condition="python:tag != '__notags__'"
+                  tal:content="tag"
+                  />
+                <span
+                  tal:condition="python:tag == '__notags__'"
                   i18n:translate="label_no_tags"
-                  tal:condition="not:requestTags"
-                  >[no tags]</option>
-          <option
-                i18n:translate=""
-                tal:repeat="tag tags"
-                tal:content="tag"
-                tal:attributes="value tag"
-                />
-        </select>
-      </div>
+                  >[no tags]</span>
+                <a href="#"
+                   class="media-tag-remove"
+                   title="Remove this tag from search">(-)</a>
+                <tal:arrow tal:condition="not:repeat/tag/end">
+                    &rarr;
+                </tal:arrow>
+            </span>
+        </div>
+        <div tal:condition="request/SearchableText | nothing">
+            <label i18n:translate="label_search_filter">Text filter:</label>
+            <span>
+                <span tal:content="request/SearchableText" />
+                <a href="#"
+                   class="media-text-remove"
+                   title="Remove this filter from search">(-)</a>
+            </span>
+        </div>
 
-      <div tal:condition="requestTags">
-          <label i18n:translate="label_tag_filter">Tags filter:</label>
-          <span tal:repeat="tag requestTags">
-              <input
-                type="hidden"
-                name="tags:list"
-                tal:attributes="value tag; id string:filter-tag-${tag}"
-                />
-              <span
-                tal:condition="python:tag != '__notags__'"
-                tal:content="tag"
-                />
-              <span
-                tal:condition="python:tag == '__notags__'"
-                i18n:translate="label_no_tags"
-                >[no tags]</span>
-              <a href="#"
-                 class="media-tag-remove"
-                 title="Remove this tag from search">(-)</a>
-              <tal:arrow tal:condition="not:repeat/tag/end">
-                  &rarr;
-              </tal:arrow>
-          </span>
-      </div>
-      <div tal:condition="request/SearchableText | nothing">
-          <label i18n:translate="label_search_filter">Text filter:</label>
-          <span>
-              <span tal:content="request/SearchableText" />
-              <a href="#"
-                 class="media-text-remove"
-                 title="Remove this filter from search">(-)</a>
-          </span>
-      </div>
+        <div class="visualClear" tal:condition="python: requestTags or 'SearchableText' in request.form"><!-- --></div>
+
+      </metal:block>
 
     </form>
 
