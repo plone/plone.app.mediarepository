@@ -1,5 +1,9 @@
 *.py?
 *.sw?
-
+.installed.cfg
+.mr.developer.cfg
+bin/
 build/
+parts/
+develop-eggs/
 plone.app.mediarepository.egg-info
