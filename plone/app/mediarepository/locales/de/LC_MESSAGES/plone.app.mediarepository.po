@@ -16,9 +16,8 @@ msgstr ""
 
 #: ./plone/app/mediarepository/browser/view.py:103
 msgid "${count} item(s) deleted"
-msgstr ""
+msgstr "${count} Element(e) gelöscht"
 
 #: ./plone/app/mediarepository/browser/view.py:123
-msgid "${count} item(s) updated"
-msgstr ""
-
+msgid "${count} item(s)Element(e) updated"
+msgstr "${count} Element(e) aktualisiert"
