@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<object>
+ <resourcetypes>
+  <linkable>
+   <element value="plone.mediarepository"/>
+  </linkable>
+  <containsobjects>
+   <element value="plone.mediarepository"/>
+  </containsobjects>
+ </resourcetypes>
+</object>
