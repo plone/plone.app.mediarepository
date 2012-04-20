@@ -1,5 +1,6 @@
 *.py?
 *.sw?
+*.mo
 .installed.cfg
 .mr.developer.cfg
 bin/
