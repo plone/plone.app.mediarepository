@@ -41,7 +41,7 @@
      tal:define="media view/queryMediaRepository;
                  tags python:view.getSearchTagsFromResults(media);
                  requestTags python:[t for t in request.form.get('tags', []) if t];
-                 Batch python:modules['Products.CMFPlone'].Batch;
+                 Batch python:modules['plone.batching'].Batch;
                  tagdata python:{'tags': request.form.get('tags', [])};
                  batchformkeys python:['tags', 'SearchableText', 'b_active'];
                  dummy python:request.form.update({'b_active': 1});

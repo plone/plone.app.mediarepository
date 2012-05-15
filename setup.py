@@ -30,6 +30,7 @@ setup(name='plone.app.mediarepository',
           'plone.app.dexterity',
           'plone.app.contentlisting',
           'plone.namedfile [blobs]',
+          'plone.batching',
       ],
       extras_require={
           'test': [
