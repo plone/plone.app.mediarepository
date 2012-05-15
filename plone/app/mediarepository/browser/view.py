@@ -9,6 +9,7 @@ from plone.app.mediarepository import MessageFactory as _
 from plone.app.mediarepository.utils import FakeResultSet
 from plone.app.mediarepository.utils import getSearchTagsFromResults
 
+
 class View(BrowserView):
     """Default view for the media repository
 
@@ -37,7 +38,8 @@ class View(BrowserView):
 
         portal_catalog = getToolByName(self.context, 'portal_catalog')
         portal_types = portal_catalog.uniqueValuesFor('portal_type')
-        portal_types = [x for x in portal_types if x != self.context.portal_type]
+        portal_types = \
+            [x for x in portal_types if x != self.context.portal_type]
 
         query['portal_type'] = portal_types
         query['path'] = '/'.join(self.context.getPhysicalPath())
@@ -54,8 +56,11 @@ class View(BrowserView):
                 results = portal_catalog(query)
                 return FakeResultSet([x for x in results if x.Subject == ()])
             else:
-                query['Subject'] = {'query':[t for t in tags if t], 'operator':'and'}
+                query['Subject'] = {
+                    'query': [t for t in tags if t],
+                    'operator': 'and'}
         return portal_catalog(query)
+
 
 class Bulk(View):
     """Tag batch operations
@@ -100,7 +105,9 @@ class Bulk(View):
                 del item.getParentNode()[item.getId()]
                 count += 1
 
-            IStatusMessage(self.request).add(_(u"${count} item(s) deleted", mapping={'count': count}))
+            IStatusMessage(self.request).add(
+                _(u"${count} item(s) deleted",
+                mapping={'count': count}))
 
         elif 'form.button.Update' in form:
 
@@ -120,7 +127,8 @@ class Bulk(View):
 
                     count += 1
 
-            IStatusMessage(self.request).add(_(u"${count} item(s) updated", mapping={'count': count}))
-
+            IStatusMessage(self.request).add(
+                _(u"${count} item(s) updated",
+                mapping={'count': count}))
 
         return self.index()
